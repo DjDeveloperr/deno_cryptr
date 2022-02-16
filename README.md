@@ -13,6 +13,8 @@ console.log(decrypted); // my secret message
 TODO: use 16 bytes IV for compatibility with Node Cryptr.
 Currently Deno Web Crypto does not support it, so we use 12 bytes.
 
+Ref: https://github.com/denoland/deno/issues/13689
+
 Another notable difference in API is Deno Cryptr is async.
 
 ## License

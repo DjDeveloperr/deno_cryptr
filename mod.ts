@@ -3,6 +3,7 @@ import * as hex from "https://deno.land/std@0.125.0/encoding/hex.ts";
 // TODO: use 16 byte IV in Deno as well. but right now there seems to be an issue
 // in Deno Web Crypto which causes it to throw "Initialization vector length not supported"
 // when using 16 byte IV.
+// Ref: https://github.com/denoland/deno/issues/13689
 const IV_LENGTH = typeof Deno === "object" ? 12 : 16;
 const SALT_LENGTH = 64;
 const TAG_LENGTH = 16;
