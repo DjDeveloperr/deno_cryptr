@@ -1,10 +1,10 @@
-import * as hex from "https://deno.land/std@0.125.0/encoding/hex.ts";
+import * as hex from "jsr:@std/encoding@0.217/hex";
 
 // TODO: use 16 byte IV in Deno as well. but right now there seems to be an issue
 // in Deno Web Crypto which causes it to throw "Initialization vector length not supported"
 // when using 16 byte IV.
 // Ref: https://github.com/denoland/deno/issues/13689
-const IV_LENGTH = typeof Deno === "object" ? 12 : 16;
+const IV_LENGTH = 16;
 const SALT_LENGTH = 64;
 const TAG_LENGTH = 16;
 
@@ -13,6 +13,9 @@ const IV_POSITION = SALT_POSITION + SALT_LENGTH;
 const TAG_POSITION = IV_POSITION + IV_LENGTH;
 const CIPHER_POSITION = TAG_POSITION + TAG_LENGTH;
 
+/**
+ * Main class for encrypting and decrypting text with a string-based secret.
+ */
 export class Cryptr {
   #secret: Uint8Array;
 
@@ -23,14 +26,14 @@ export class Cryptr {
   #baseKey?: CryptoKey;
 
   async #getKey(salt: Uint8Array) {
-    const baseKey =
-      (this.#baseKey ?? (this.#baseKey = await crypto.subtle.importKey(
+    const baseKey = this.#baseKey ??
+      (this.#baseKey = await crypto.subtle.importKey(
         "raw",
         this.#secret,
         "PBKDF2",
         false,
         ["deriveKey", "deriveBits"],
-      )));
+      ));
 
     return await crypto.subtle.deriveKey(
       {
@@ -80,11 +83,11 @@ export class Cryptr {
     result.set(authTag, TAG_POSITION);
     result.set(cipher, CIPHER_POSITION);
 
-    return new TextDecoder().decode(hex.encode(result));
+    return hex.encodeHex(result);
   }
 
   async decrypt(text: string): Promise<string> {
-    const data = hex.decode(new TextEncoder().encode(text));
+    const data = hex.decodeHex(text);
 
     const salt = data.subarray(SALT_POSITION, SALT_LENGTH);
     const iv = data.subarray(IV_POSITION, IV_POSITION + IV_LENGTH);
